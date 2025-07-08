@@ -1,103 +1,350 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>رسالة لنفسك في المستقبل</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>doot~10 Chat + Friends Private</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: 'Tahoma', sans-serif;
-      background: linear-gradient(135deg, #c3e0ff, #e0c3fc);
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    p {
-      font-size: 1rem;
-      margin-bottom: 2rem;
-    }
-    textarea {
-      width: 90%;
-      height: 150px;
-      border-radius: 10px;
-      border: 1px solid #aaa;
-      padding: 1rem;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-    }
-    select, input[type="email"] {
-      padding: 0.5rem;
-      margin: 0.5rem;
-      border-radius: 8px;
-      border: 1px solid #888;
-    }
-    button {
-      padding: 0.7rem 2rem;
-      background: #6a5acd;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #483d8b;
-    }
-    .quote {
-      margin-top: 3rem;
-      font-style: italic;
-    }
+    .page { display: none; }
+    .page.active { display: block; }
   </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-purple-500 to-indigo-700 min-h-screen text-white flex flex-col">
 
-  <h1>✉️ اكتب رسالة لنفسك في المستقبل</h1>
-  <p>دوّن مشاعرك وأحلامك اليوم، واستلمها بعد سنة أو أكثر لتتذكر من كنت.</p>
+<!-- تسجيل اسم المستخدم -->
+<section id="page-login" class="page active flex flex-col items-center justify-center flex-grow p-8">
+  <h1 class="text-5xl font-bold mb-6 text-center">Welcome to doot~10</h1>
+  <p class="text-xl mb-8 text-center max-w-md">Enter your username to start:</p>
+  <input id="usernameInput" type="text" maxlength="15" placeholder="Username" class="text-black rounded-lg p-3 w-60 text-center mb-4" />
+  <button onclick="saveUsername()" class="bg-white text-purple-700 font-semibold py-3 px-8 rounded-2xl shadow hover:bg-purple-100 transition">
+    Continue
+  </button>
+  <p id="usernameError" class="text-red-500 mt-2"></p>
+</section>
 
-  <textarea placeholder="اكتب رسالتك هنا..."></textarea><br>
+<!-- اختيار الغرفة -->
+<section id="page-rooms" class="page flex flex-col items-center justify-center flex-grow p-8 hidden">
+  <h1 class="text-5xl font-bold mb-6 text-center">Choose Room</h1>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-4/5 max-w-5xl mx-auto">
+    <button onclick="enterRoom('شات عام')" class="bg-white text-purple-700 font-semibold py-4 px-8 rounded-2xl shadow hover:bg-purple-100 transition">
+      💬 شات عام
+    </button>
+    <button onclick="enterRoom('شات عام بالصوت')" class="bg-white text-purple-700 font-semibold py-4 px-8 rounded-2xl shadow hover:bg-purple-100 transition">
+      🎤 شات عام بالصوت
+    </button>
+    <button onclick="showSubRooms()" class="bg-white text-purple-700 font-semibold py-4 px-8 rounded-2xl shadow hover:bg-purple-100 transition">
+      🏠 غرف محادثة
+    </button>
+  </div>
+  <button onclick="showPage('friends')" class="mt-8 bg-white text-purple-700 px-6 py-3 rounded-lg font-semibold hover:bg-purple-100 transition max-w-xs mx-auto">
+    👥 الأصدقاء
+  </button>
+</section>
 
-  <select>
-    <option>اختر متى توصلك</option>
-    <option>بعد سنة</option>
-    <option>بعد 3 سنوات</option>
-    <option>بعد 5 سنوات</option>
-  </select>
+<!-- غرف محادثة فرعية -->
+<section id="page-subrooms" class="page flex flex-col items-center justify-center flex-grow p-8 hidden">
+  <h1 class="text-4xl font-bold mb-6 text-center">Select a Sub Room</h1>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-4/5 max-w-5xl mx-auto">
+    <button onclick="enterRoom('Lounge')" class="bg-white text-purple-700 font-semibold py-4 px-8 rounded-2xl shadow hover:bg-purple-100 transition">☕ Lounge</button>
+    <button onclick="enterRoom('Study')" class="bg-white text-purple-700 font-semibold py-4 px-8 rounded-2xl shadow hover:bg-purple-100 transition">📚 Study</button>
+    <button onclick="enterRoom('Fun')" class="bg-white text-purple-700 font-semibold py-4 px-8 rounded-2xl shadow hover:bg-purple-100 transition">🎲 Fun</button>
+  </div>
+  <button onclick="showPage('rooms')" class="mt-8 bg-white text-purple-700 px-6 py-3 rounded-lg font-semibold hover:bg-purple-100 transition max-w-xs mx-auto">Back</button>
+</section>
 
-  <input type="email" placeholder="ايميلك"><br>
+<!-- قائمة الأصدقاء -->
+<section id="page-friends" class="page flex flex-col items-center justify-start flex-grow p-8 hidden">
+  <h1 class="text-4xl font-bold mb-6 text-center">👥 Friends</h1>
+  
+  <!-- إشعار الإضافة -->
+  <div id="friendNotification" class="hidden mb-4 bg-green-600 text-white rounded-lg p-3 max-w-md mx-auto text-center"></div>
+  
+  <form id="addFriendForm" class="flex gap-2 max-w-md mx-auto mb-6">
+    <input type="text" id="friendNameInput" placeholder="Enter friend's username" class="flex-grow p-3 rounded-lg text-black" required maxlength="15" />
+    <button type="submit" class="bg-white text-purple-700 font-semibold px-6 rounded-lg shadow hover:bg-purple-100 transition">Add Friend</button>
+  </form>
+  <div id="friendsList" class="max-w-md w-full mx-auto space-y-3 overflow-y-auto" style="max-height: 50vh;"></div>
+  <button onclick="showPage('rooms')" class="mt-8 bg-white text-purple-700 px-6 py-3 rounded-lg font-semibold hover:bg-purple-100 transition max-w-xs mx-auto">Back</button>
+</section>
 
-  <button onclick="sendLetter()">احفظها للمستقبل 🌱</button>
+<!-- الشات -->
+<section id="page-chat" class="page flex flex-col flex-grow p-8 hidden max-w-5xl mx-auto w-full">
+  <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+    <h1 id="roomTitle" class="text-4xl font-bold break-words">Chat</h1>
+    <button onclick="showPage('rooms')" class="bg-white text-purple-700 px-4 py-2 rounded-lg font-semibold hover:bg-purple-100 transition whitespace-nowrap">Back</button>
+  </div>
+  <div class="flex gap-2 mb-4 flex-wrap">
+    <button onclick="addTemplateMessage('Hello everyone!')" class="bg-white text-purple-700 py-2 px-4 rounded-lg shadow hover:bg-purple-100 transition">+ Hello</button>
+    <button onclick="addTemplateMessage('Can someone help me?')" class="bg-white text-purple-700 py-2 px-4 rounded-lg shadow hover:bg-purple-100 transition">+ Help?</button>
+    <label class="bg-white text-purple-700 py-2 px-4 rounded-lg shadow hover:bg-purple-100 transition cursor-pointer">
+      + Image
+      <input type="file" accept="image/*" class="hidden" onchange="addImage(event)">
+    </label>
+    <label class="bg-white text-purple-700 py-2 px-4 rounded-lg shadow hover:bg-purple-100 transition cursor-pointer" id="audioUploadLabel">
+      + Audio
+      <input type="file" accept="audio/*" class="hidden" onchange="addAudio(event)">
+    </label>
+    <button id="recordBtn" onclick="toggleRecording()" class="bg-red-600 text-white py-2 px-4 rounded-lg shadow hover:bg-red-700 transition hidden">🎙 Start Recording</button>
+  </div>
+  <div id="chatBox" class="flex-1 bg-white bg-opacity-20 rounded-lg p-4 mb-4 overflow-y-auto max-h-[60vh] text-black"></div>
+  <form id="chatForm" class="flex gap-2 flex-wrap">
+    <input type="text" id="chatInput" placeholder="Type your message..." class="flex-grow rounded-lg p-3 focus:outline-none" autocomplete="off" required>
+    <button type="submit" class="bg-purple-800 hover:bg-purple-900 rounded-lg px-6 py-3 font-semibold transition text-white whitespace-nowrap">Send</button>
+  </form>
+</section>
 
-  <div class="quote" id="quote"></div>
+<script>
+  // المتغيرات العامة
+  let username = localStorage.getItem('doot10_username') || null;
+  let currentRoom = '';
+  let isVoiceRoom = false;
+  let mediaRecorder, audioChunks = [];
+  let currentPrivateChatFriend = null; // اسم الصديق للدردشة الخاصة
+  let isPrivateChat = false;
 
-  <script>
-    function sendLetter() {
-      const message = document.querySelector('textarea').value;
-      const time = document.querySelector('select').value;
-      const email = document.querySelector('input[type="email"]').value;
+  // التحكم بالصفحات
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
 
-      if (!message || time === 'اختر متى توصلك' || !email) {
-        alert('رجاءً املأ جميع الحقول بشكل صحيح.');
-        return;
-      }
-      alert(`🚀 تم حفظ رسالتك!\nسوف ترسل إلى ${email} ${time}.`);
+    // اذا الصفحة شات فعام بالصوت نظهر زر التسجيل
+    if (page === 'chat') {
+      document.getElementById('recordBtn').classList.toggle('hidden', !isVoiceRoom);
+    }
+  }
+
+  // حفظ اسم المستخدم
+  function saveUsername() {
+    const input = document.getElementById('usernameInput');
+    const error = document.getElementById('usernameError');
+    const val = input.value.trim();
+    if (val.length < 3 || val.length > 15) {
+      error.textContent = 'Username must be 3 to 15 characters.';
+      return;
+    }
+    username = val;
+    localStorage.setItem('doot10_username', username);
+    showPage('rooms');
+  }
+
+  // عرض الغرف الفرعية
+  function showSubRooms() {
+    showPage('subrooms');
+  }
+
+  // دخول غرفة أو دردشة خاصة
+  function enterRoom(room, privateFriend = null) {
+    currentRoom = room;
+    isVoiceRoom = (room === 'شات عام بالصوت');
+    currentPrivateChatFriend = privateFriend;
+    isPrivateChat = privateFriend !== null;
+    const title = isPrivateChat ? `Chat with ${privateFriend}` : room;
+    document.getElementById('roomTitle').textContent = title;
+    showPage('chat');
+    loadChat();
+  }
+
+  // تحميل المحادثة (عامة أو خاصة)
+  function loadChat() {
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = '';
+    let key = isPrivateChat ? `doot10_private_${username}_${currentPrivateChatFriend}` : `doot10_chat_${currentRoom}`;
+    const messages = JSON.parse(localStorage.getItem(key) || '[]');
+    messages.forEach(msg => renderMessage(msg));
+  }
+
+  // حفظ رسالة (عامة أو خاصة)
+  function saveChatMessage(msg) {
+    let key = isPrivateChat ? `doot10_private_${username}_${currentPrivateChatFriend}` : `doot10_chat_${currentRoom}`;
+    const messages = JSON.parse(localStorage.getItem(key) || '[]');
+    messages.push(msg);
+    localStorage.setItem(key, JSON.stringify(messages));
+  }
+
+  // حذف رسالة (عامة أو خاصة)
+  function removeMessage(msg) {
+    let key = isPrivateChat ? `doot10_private_${username}_${currentPrivateChatFriend}` : `doot10_chat_${currentRoom}`;
+    let messages = JSON.parse(localStorage.getItem(key) || '[]');
+    messages = messages.filter(m => JSON.stringify(m) !== JSON.stringify(msg));
+    localStorage.setItem(key, JSON.stringify(messages));
+  }
+
+  // عرض رسالة في الشات
+  function renderMessage(msg) {
+    const chatBox = document.getElementById('chatBox');
+    const container = document.createElement('div');
+    container.className = 'bg-white rounded-lg p-3 mb-2 max-w-[80%] text-black relative';
+
+    if (msg.type === 'text') {
+      container.textContent = `${msg.user}: ${msg.content}`;
+    } else if (msg.type === 'image') {
+      container.innerHTML = `<strong>${msg.user}:</strong><br><img src="${msg.content}" class="max-w-full rounded-lg mt-2">`;
+    } else if (msg.type === 'audio') {
+      container.innerHTML = `<strong>${msg.user}:</strong><br><audio controls src="${msg.content}" class="mt-2 w-full"></audio>`;
     }
 
-    // اقتباسات متغيرة
-    const quotes = [
-      "الحياة قصيرة جدًا لتعيشها دون أن تكتبها...",
-      "رسالتك اليوم، قد تنقذك غدًا.",
-      "كن صادقًا مع نفسك التي ستقرأ هذه لاحقًا.",
-      "ما أجمل أن تتذكر مشاعرك بعد سنين." 
-    ];
-    document.getElementById('quote').textContent = quotes[Math.floor(Math.random()*quotes.length)];
-  </script>
+    const del = document.createElement('button');
+    del.textContent = '🗑';
+    del.title = 'Delete message';
+    del.className = 'absolute top-1 right-2 text-red-500 hover:text-red-700';
+    del.onclick = () => {
+      container.remove();
+      removeMessage(msg);
+    };
+    container.appendChild(del);
 
+    chatBox.appendChild(container);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  // اضافة رسالة قالبية
+  function addTemplateMessage(text) {
+    const msg = { user: username, type: 'text', content: text };
+    saveChatMessage(msg);
+    renderMessage(msg);
+  }
+
+  // اضافة صورة
+  function addImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const msg = { user: username, type: 'image', content: e.target.result };
+      saveChatMessage(msg);
+      renderMessage(msg);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = null; // reset input
+  }
+
+  // اضافة صوت من ملف
+  function addAudio(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const msg = { user: username, type: 'audio', content: e.target.result };
+      saveChatMessage(msg);
+      renderMessage(msg);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = null; // reset input
+  }
+
+  // تسجيل صوتي بالمايك
+  function toggleRecording() {
+    if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.start();
+          audioChunks = [];
+          mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            const url = URL.createObjectURL(blob);
+            const msg = { user: username, type: 'audio', content: url };
+            saveChatMessage(msg);
+            renderMessage(msg);
+          };
+          document.getElementById('recordBtn').textContent = '🛑 Stop Recording';
+        })
+        .catch(() => alert('Microphone access denied or not supported.'));
+    } else {
+      mediaRecorder.stop();
+      document.getElementById('recordBtn').textContent = '🎙 Start Recording';
+    }
+  }
+
+  // ارسال رسالة
+  document.getElementById('chatForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const input = document.getElementById('chatInput');
+    const content = input.value.trim();
+    if (!content) return;
+    const msg = { user: username, type: 'text', content };
+    saveChatMessage(msg);
+    renderMessage(msg);
+    input.value = '';
+  });
+
+  // ==== أصدقاء ====
+
+  // تحميل قائمة الأصدقاء
+  function loadFriends() {
+    const friendsList = document.getElementById('friendsList');
+    friendsList.innerHTML = '';
+    let friends = JSON.parse(localStorage.getItem(`doot10_friends_${username}`) || '[]');
+    if(friends.length === 0){
+      friendsList.innerHTML = '<p class="text-center text-gray-300">No friends added yet.</p>';
+      return;
+    }
+    friends.forEach(friend => {
+      const friendDiv = document.createElement('div');
+      friendDiv.className = 'bg-white bg-opacity-20 rounded-lg p-3 flex justify-between items-center text-black';
+      friendDiv.innerHTML = `
+        <span class="font-semibold">${friend}</span>
+        <div class="flex gap-2">
+          <button onclick="startPrivateChat('${friend}')" class="bg-purple-700 text-white px-3 py-1 rounded hover:bg-purple-800 transition">دردشة</button>
+          <button onclick="removeFriend('${friend}')" class="text-red-600 hover:text-red-800 font-bold text-lg">×</button>
+        </div>
+      `;
+      friendsList.appendChild(friendDiv);
+    });
+  }
+
+  // اضافة صديق مع إشعار
+  document.getElementById('addFriendForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const input = document.getElementById('friendNameInput');
+    const friendName = input.value.trim();
+    const notification = document.getElementById('friendNotification');
+    notification.classList.add('hidden');
+    if (!friendName || friendName === username) {
+      alert('Invalid friend name.');
+      return;
+    }
+    let friends = JSON.parse(localStorage.getItem(`doot10_friends_${username}`) || '[]');
+    if (friends.includes(friendName)) {
+      alert('Friend already added.');
+      return;
+    }
+    friends.push(friendName);
+    localStorage.setItem(`doot10_friends_${username}`, JSON.stringify(friends));
+    input.value = '';
+    loadFriends();
+
+    // إظهار إشعار النجاح
+    notification.textContent = `تم إضافة ${friendName} كصديق بنجاح!`;
+    notification.classList.remove('hidden');
+
+    // اخفاء الإشعار بعد 3 ثواني
+    setTimeout(() => {
+      notification.classList.add('hidden');
+    }, 3000);
+  });
+
+  // حذف صديق
+  function removeFriend(friend) {
+    let friends = JSON.parse(localStorage.getItem(`doot10_friends_${username}`) || '[]');
+    friends = friends.filter(f => f !== friend);
+    localStorage.setItem(`doot10_friends_${username}`, JSON.stringify(friends));
+    loadFriends();
+  }
+
+  // بدء دردشة خاصة مع صديق
+  function startPrivateChat(friend) {
+    enterRoom(`Private chat with ${friend}`, friend);
+  }
+
+  // === عرض الأصدقاء أو الغرف أو تسجيل دخول ===
+  window.onload = () => {
+    if (!username) showPage('login');
+    else showPage('rooms');
+  };
+
+</script>
 </body>
 </html>
